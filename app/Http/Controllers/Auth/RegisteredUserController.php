@@ -39,12 +39,19 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'user', // Default Role = User
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // --- PERBAIKAN LOGIKA REDIRECT ---
+        // Karena default register adalah user biasa, langsung kirim ke user dashboard
+        if ($user->role === 'admin') {
+            return redirect(route('dashboard', absolute: false));
+        }
+
+        return redirect(route('user.dashboard', absolute: false));
     }
 }
