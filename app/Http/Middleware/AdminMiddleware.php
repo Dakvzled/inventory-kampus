@@ -5,27 +5,30 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-// Import the Auth facade
 use Illuminate\Support\Facades\Auth;
 
 class AdminMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Check if the user is authenticated AND if their 'type' is 'admin'
-        if (Auth::check() && Auth::user()->type == "admin") {
-            // If they are an admin, allow the request to proceed
+        // 1. Pastikan User Login
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
+        // 2. Cek apakah role-nya 'admin' (Gunakan 'role', bukan 'type')
+        if (Auth::user()->role == 'admin') {
             return $next($request);
         }
 
-        // 2. If the user is NOT an admin (or not logged in), stop the request
-        // and return a 401 Unauthorized response.
-        abort(401, 'Unauthorized Access!');
+        // 3. Jika User login tapi BUKAN admin, jangan kasih error 401 (layar putih).
+        // Lebih baik lempar balik ke dashboard User agar lebih ramah.
+        return redirect()->route('user.dashboard')->with('error', 'Anda tidak memiliki akses admin!');
+        
+        // OPSI ALTERNATIF: Jika Anda tetap ingin memunculkan error 401/403 (Forbidden):
+        // abort(403, 'Akses Ditolak. Halaman ini khusus Admin.');
     }
 }
-

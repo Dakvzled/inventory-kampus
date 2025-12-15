@@ -1,95 +1,89 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Admin Dashboard') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    <!-- FIX 1: Alert Success yang lebih rapi (Hijau) -->
-                    @if(session('success'))
-                    ...
-                    {{ session('success') }}
-                    ...
-                    @endif
-
-                    <h3 class="text-lg font-bold mb-4">Add New Item</h3>
-
-                    <form action="{{ route('admin.postadditem') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        
-                        <!-- 1. Item Name -->
-                        <div class="mb-4">
-                            <label for="item_name" class="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
-                            <input type="text" 
-                                   name="item_name" 
-                                   id="item_name"
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
-                                   placeholder="Enter Item Name" 
-                                   required>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Item</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .nav-tabs .nav-link { color: #6c757d; border: none; padding: 1rem 1.5rem; font-weight: 500; }
+        .nav-tabs .nav-link:hover { color: #0d6efd; background: rgba(13, 110, 253, 0.05); border-radius: 5px 5px 0 0; }
+        .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd; background: transparent; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5 mb-5">
+        <div class="card">
+            <div class="card-header bg-white pt-4 pb-0 border-bottom-0">
+                <div class="d-flex justify-content-between align-items-center mb-3 px-2">
+                    <h4 class="fw-bold text-primary mb-0"><i class="fa-solid fa-layer-group me-2"></i>Admin Inventory</h4>
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="me-2 text-dark fw-bold">Halo, {{ Auth::user()->name ?? 'Admin' }}</span>
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center border shadow-sm" style="width: 35px; height: 35px;"><i class="fa-solid fa-user text-primary"></i></div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="dropdownUser1">
+                            <li><h6 class="dropdown-header">User Account</h6></li>
+                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="fa-solid fa-user-gear me-2 text-muted"></i>Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-right-from-bracket me-2"></i>Log Out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <ul class="nav nav-tabs card-header-tabs" style="margin-bottom: -1px;">
+                    <li class="nav-item"><a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.addcategory') }}">Add Category</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.viewcategory') }}">View Category</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ route('admin.additem') }}">Add Item</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.viewitem') }}">View Item</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('admin.borrowings') }}">Requests</a></li>
+                </ul>
+            </div>
+            <div class="card-body p-5 bg-white rounded-bottom">
+                <h5 class="mb-4 fw-bold text-secondary">Add New Inventory Item</h5>
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert"><i class="fa-solid fa-check-circle me-2"></i>{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+                @endif
+                <form action="{{ route('admin.postadditem') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Item Name</label>
+                        <input type="text" name="item_name" class="form-control" placeholder="Enter Item Name" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Item Image</label>
+                        <input type="file" name="item_image" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold">Quantity</label>
+                            <input type="number" name="item_quantity" class="form-control" placeholder="0" required>
                         </div>
-
-                        <!-- 2. Item Image -->
-                        <!-- FIX 2: Input file tidak butuh placeholder. Struktur dirapikan. -->
-                        <div class="mb-4">
-                            <label for="item_image" class="block text-sm font-medium text-gray-700 mb-1">Item Image</label>
-                            <input type="file" 
-                                   name="item_image" 
-                                   id="item_image"
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
-                                   accept="image/*"
-                                   required>
-                        </div>
-
-                        <!-- 3. Item Quantity -->
-                        <div class="mb-4">
-                            <label for="item_quantity" class="block text-sm font-medium text-gray-700 mb-1">Item Quantity</label>
-                            <input type="number" 
-                                   name="item_quantity" 
-                                   id="item_quantity"
-                                   min="1"
-                                   class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
-                                   placeholder="Enter Item Quantity" 
-                                   required>
-                        </div>
-
-                        <!-- 4. Category (Dropdown) -->
-                        <div class="mb-4 w-1/2">
-                            <label for="category_name" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            
-                            <!-- FIX 3: Tag Select membungkus semua Option -->
-                            <select name="category_name" id="category_name" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                                <option value="" disabled selected>Select Category</option>
-                                
-                                @if(isset($categories) && count($categories) > 0)
-                                    @foreach($categories as $category)
-                                        <!-- Value mengirim ID, Teks menampilkan Nama -->
-                                        <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                    @endforeach
-                                @else
-                                    <!-- Fallback statis jika database kosong -->
-                                    <option value="1">Perangkat Elektronik</option>
-                                    <option value="2">Furnitur dan Mebel</option>
-                                    <option value="3">Ruangan Gedung</option>
-                                    <option value="4">Alat Praktikum</option>
-                                @endif
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold">Category</label>
+                            <select name="category_name" class="form-select" required>
+                                <option value="">Select Category</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
+                                @endforeach
                             </select>
                         </div>
-
-                        <!-- Button -->
-                        <div class="mt-4">
-                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition duration-150 ease-in-out">
-                                Add Product
-                            </button>
-                        </div>
-
-                    </form>
-                </div>
+                    </div>
+                    <div class="text-end mt-2">
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-bold"><i class="fa-solid fa-save me-2"></i>Save Item</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</x-app-layout>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
